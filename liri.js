@@ -82,20 +82,17 @@ client.search({ type: 'track', query: thingName }, function(err, data) {
     return console.log('Error occurred: ' + err);
   }
  
-//Display the data for the first 5 matches
+//Display the data for the first match
 var songInfo = data.tracks.items;
-        for (var i = 0; i < 5; i++) {
-          if (songInfo[i] != undefined) {
-            var spotifyResults =
-            "Artist: " + songInfo[i].artists[0].name + "\r\n" +
-            "Song: " + songInfo[i].name + "\r\n" +
-            "Album the song is from: " + songInfo[i].album.name + "\r\n" +
-            "Preview Url: " + songInfo[i].preview_url + "\r\n" + 
-            "------------------------------ " + i + " ------------------------------" + "\r\n";
-            console.log(spotifyResults);
 
+          if (songInfo[0] != undefined) {
+
+            console.log("Artist: " + songInfo[0].artists[0].name);
+            console.log("Song: " + songInfo[0].name);
+            console.log("Album the song is from: " + songInfo[0].album.name);
+            console.log("Preview Url: " + songInfo[0].preview_url);
           }
-        }
+
 
 });
 }
