@@ -1,6 +1,5 @@
+//Declare variables and requires
 
-
-// Include the request npm package (Don't forget to run "npm install request" in this folder first!)\
 var spotifyKeys=require("./spotifyKeys.js");
 var twitterKeys=require("./keys.js")
 var request = require("request");
@@ -10,32 +9,35 @@ var fs= require("fs");
 // Store all of the arguments in an array
 var nodeArgs = process.argv;
 
-
-
-
-// Create an empty variable for holding the movie name
+// Create an empty variable for holding the name of the "thing"
 
 var thingName = "";
 
 // Loop through all the words in the node argument
-// And do a little for-loop magic to handle the inclusion of "+"s
+// And do a little for-loop magic to handle the inclusion of " "s
 for (var i = 3; i < nodeArgs.length; i++) {
 
   if (i > 3 && i < nodeArgs.length) {
-
     thingName = thingName + " " + nodeArgs[i];
-
   }
-
   else {
-
     thingName += nodeArgs[i];
-
   }
 }
 
-if (nodeArgs[2]=="movie-this"){
+  // Possible commands for this liri app from the 3rd item in the passed in elements
+  switch(nodeArgs[2]) {
+    case "my-tweets": myTweets(); break;
+    case "spotify-this-song": spotifyThisSong(); break;
+    case "movie-this": movieThis(); break;
+    case "do-what-it-says": doWhatItSays(); break;
 
+  };
+
+//Function to access the OMDB
+function movieThis(){
+
+//Use Mr Nobody if no movie passed in
 if(!thingName){
       thingName = "mr nobody";
     }
@@ -62,24 +64,25 @@ request(queryName, function(error, response, body) {
 }
 
 
+//Fucntion to access spotify
+function spotifyThisSong(){
 
-if (nodeArgs[2]=="spotify-this-song"){
-
+//Use the Sign as the song name if no song passed on the command line
   if(!thingName){
       thingName = "The Sign";
     }
  
+ //Pull in the spotify keys
 var client = new Spotify(spotifyKeys);
- 
+
+//Search spotify for the song 
 client.search({ type: 'track', query: thingName }, function(err, data) {
   if (err) {
 
     return console.log('Error occurred: ' + err);
   }
  
-
-
-
+//Display the data for the first 5 matches
 var songInfo = data.tracks.items;
         for (var i = 0; i < 5; i++) {
           if (songInfo[i] != undefined) {
@@ -97,15 +100,18 @@ var songInfo = data.tracks.items;
 });
 }
 
-if (nodeArgs[2]=="my-tweets"){
+//Function to access twitter
+function myTweets(){
  
 var client = new Twitter(twitterKeys);
 
-
+//If no twitter name passed in use my fictional Spinal Tap bassist user name
 var twitterUsername = process.argv[3];
     if(!twitterUsername){
       twitterUsername = "512DerekSmalls";
     }
+
+    //Access the last 20 tweets from the username
     params = {screen_name: twitterUsername};
     client.get("statuses/user_timeline/", params, function(error, data, response){
       if (!error) {
@@ -127,37 +133,14 @@ var twitterUsername = process.argv[3];
  
 
 }
-
-if (nodeArgs[2]=="do-what-it-says"){
- 
+//Function to read the random.txt file and spotify the song
+function doWhatItSays(){
+ //Read file and store tje output in data
 fs.readFile("random.txt", "utf8", function(error, data){
       if (!error) {
-        var doWhatItSaysResults = data.split(",");
-var client = new Spotify(spotifyKeys);
- 
-client.search({ type: 'track', query: doWhatItSaysResults }, function(err, data) {
-  if (err) {
-
-    return console.log('Error occurred: ' + err);
-  }
- 
-
-var songInfo = data.tracks.items;
-        for (var i = 0; i < 5; i++) {
-          if (songInfo[i] != undefined) {
-            var spotifyResults =
-            "Artist: " + songInfo[i].artists[0].name + "\r\n" +
-            "Song: " + songInfo[i].name + "\r\n" +
-            "Album the song is from: " + songInfo[i].album.name + "\r\n" +
-            "Preview Url: " + songInfo[i].preview_url + "\r\n" + 
-            "------------------------------ " + i + " ------------------------------" + "\r\n";
-            console.log(spotifyResults);
-
-          }
-        }
-
-});
-
+        //Make thingName the output of the file read and call the spotify function
+        var thingName = data.split(",");
+        spotifyThisSong();
 
       } 
     });
